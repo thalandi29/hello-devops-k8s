@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-devops
+  namespace: hello-devops
+spec:
+  replicas: 2
+  # Run 2 copies for high availability.
+  # If one crashes, the other keeps serving traffic.
+  selector:
+    matchLabels:
+      app: hello-devops
+  # matchLabels connects this Deployment to its Pods
+ 
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  # RollingUpdate = zero downtime deployments
+  # maxSurge: 1 = allow 1 extra pod during update (so 3 total)
+  # maxUnavailable: 0 = never kill a pod until a new one is ready
+ 
+  template:
+    metadata:
+      labels:
+        app: hello-devops
+    spec:
+      containers:
+      - name: hello-devops
+        image: thalandi299/hello-devops:1
+        # Jenkins updates this line on every build
+ 
+        ports:
+        - containerPort: 3000
+ 
+        env:
+        - name: PORT
+          value: '3000'
+        - name: APP_VERSION
+          value: '1.0.0'
+ 
+        resources:
+          requests:
+            memory: '64Mi'
+            cpu: '50m'
+          limits:
+            memory: '128Mi'
+            cpu: '200m'
+        # requests = minimum guaranteed resources
+        # limits = maximum allowed (container is killed if it exceeds this)
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        # livenessProbe: call /health every 10 seconds
+        # If it fails 3 times in a row, restart the container 
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        # readinessProbe: only send traffic when /health returns 200
+        # During startup, the pod is 'not ready' and gets no traffic
