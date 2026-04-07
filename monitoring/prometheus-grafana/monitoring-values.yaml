@@ -1,0 +1,53 @@
+# Grafana configuration
+grafana:
+  enabled: true
+  adminPassword: 'DevOps@2024!'
+  # Change this to a strong password!
+ 
+  service:
+    type: NodePort
+    nodePort: 32000
+  # Access Grafana at http://YOUR_SERVER_IP:32000
+ 
+  persistence:
+    enabled: true
+    size: 2Gi
+  # Save dashboards permanently — survives pod restarts
+ 
+  grafana.ini:
+    server:
+      root_url: 'http://YOUR_SERVER_IP:32000'
+ 
+# Prometheus configuration
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    # Keep 7 days of metrics history
+ 
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+    # Store metrics on disk — survives pod restarts
+ 
+    # IMPORTANT: This tells Prometheus to scrape ALL namespaces
+    # not just the monitoring namespace
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+ 
+# Alertmanager
+alertmanager:
+  enabled: true
+  # We will configure this later for alerts
+ 
+# Node Exporter — collects Linux system metrics
+nodeExporter:
+  enabled: true
+ 
+# kube-state-metrics — collects K8s object metrics
+kubeStateMetrics:
+  enabled: true
