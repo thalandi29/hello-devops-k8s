@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - name: hello-devops
-        image: thalandi299/hello-devops:1
+        image: thalandi299/hello-devops:13
         # Jenkins updates this line on every build
  
         ports:
