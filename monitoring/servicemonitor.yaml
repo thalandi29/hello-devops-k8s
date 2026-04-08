@@ -1,0 +1,25 @@
+# Add this file to your hello-devops-k8s GitOps repo
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hello-devops-metrics
+  namespace: monitoring
+  # IMPORTANT: ServiceMonitor must be in the monitoring namespace
+  labels:
+    release: monitoring
+    # This label MUST match the Prometheus selector
+    # 'release: monitoring' is what kube-prometheus-stack looks for
+spec:
+  namespaceSelector:
+    matchNames:
+      - hello-devops
+    # Look for services in the hello-devops namespace
+  selector:
+    matchLabels:
+      app: hello-devops
+    # Match services with this label
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
+    # Scrape every 15 seconds
