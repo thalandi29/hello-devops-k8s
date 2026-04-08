@@ -3,21 +3,18 @@ kind: Service
 metadata:
   name: hello-devops
   namespace: hello-devops
+  labels:
+    app: hello-devops
+    # This label is needed by the ServiceMonitor selector
 spec:
   selector:
     app: hello-devops
-  # selector connects this Service to pods with label app: hello-devops
- 
   ports:
-  - protocol: TCP
+  - name: http
+    # The port name 'http' is referenced in the ServiceMonitor
+    protocol: TCP
     port: 80
-    # port 80 = the port the Service listens on
     targetPort: 3000
-    # targetPort 3000 = the port on the Pod to forward to
     nodePort: 30080
-    # nodePort = the port on your server you can access from outside
-    # Visit http://YOUR_SERVER_IP:30080 to see your app!
- 
   type: NodePort
-  # NodePort = expose on every node at nodePort
-  # Good for testing. In production you would use an Ingress instead.
+
